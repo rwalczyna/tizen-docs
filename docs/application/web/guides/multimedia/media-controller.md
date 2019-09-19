@@ -57,9 +57,7 @@ The main features of the Media Controller API include:
 
 - Setting abilities of the media controller server
 
-  You can [set abilities of the media controller server](#server-abilities) by using `saveAbilities()` method.
-
-  To check whick features are supported by server you can use `abilities` attribute gathered by `getLatestServerInfo()` method.
+  To check which features are supported by the server, you can use [MediaControllerAbilitiesInfo](../../api/latest/device_api/wearable/tizen/mediacontroller.html#MediaControllerAbilitiesInfo) interface, which can be accessed as a member of `MediaControllerServerInfo` object, gathered by  `getLatestServerInfo()` method.
 
 - Setting features of media controller server
 
@@ -188,7 +186,7 @@ To use the icon URI attribute in your media controller application, follow these
 2. Get the server icon URI on the client side:
 
     ```
-    var client = tizen.mediacontroller.getClient();
+    var mcClient = tizen.mediacontroller.getClient();
     var server_info = client.getLatestServerInfo();
     console.log(server_info.iconURI);
     ```
@@ -335,13 +333,13 @@ To send the search request from the client application, follow these steps:
 1. Get client handle:
 
     ```
-    var client = tizen.mediacontroller.getClient();
+    var mcClient = tizen.mediacontroller.getClient();
     ```
 
 2. Get server connection:
 
     ```
-    var serverInfo = client.getLatestServerInfo();
+    var mcServerInfo = mcClient.getLatestServerInfo();
     ```
 
 3. Prepare search request, which is an array of SearchFilter objects:
@@ -365,7 +363,7 @@ To send the search request from the client application, follow these steps:
 5. Send search request:
 
     ```
-    serverInfo.sendSearchRequest(request, searchReplyCallback);
+    mcServerInfo.sendSearchRequest(request, searchReplyCallback);
     ```
 
 ## Setting Content Type for Currently Playing Media
@@ -377,7 +375,7 @@ different types of media items.
 1. Setting content type on the server side:
 
     ```
-    server.updatePlaybackContentType("VIDEO");
+    mcServer.updatePlaybackContentType("VIDEO");
     ```
 
 2. Accessing content type on the client side:
@@ -400,7 +398,7 @@ Server can set age rating for current playback. Client can access this rating (r
 1. Setting content age rating on the server side:
 
     ```
-    server.updatePlaybackAgeRating("18");
+    mcServer.updatePlaybackAgeRating("18");
     ```
 
 2. Accessing content age rating on the client side:
@@ -533,8 +531,8 @@ To manage the media controller playlist in your application, you must handle req
 
 ## Server abilities
 
-Multiple server's abilities can be set to give information to the client about supported features. Abilities can be divided into two groups:
-1. Media controller simple abilities - each ability is described by a single [MediaControllerAbilitySupport](../../api/latest/device_api/mobile/tizen/mediacontroller.html#MediaControllerAbilitySupport) value and is not a part of a complex ability structure
+Multiple server's abilities can be set to give information to clients about supported features. Abilities can be divided into two groups:
+1. Media controller simple abilities - each ability is described by a single [MediaControllerAbilitySupport](../../api/latest/device_api/mobile/tizen/mediacontroller.html#MediaControllerAbilitySupport) value and is not a part of a complex ability structure.
 
     - PLAYBACK_POSITION - Ability to change playback position.
     - SHUFFLE - Ability to change shuffle mode.
@@ -551,36 +549,44 @@ Multiple server's abilities can be set to give information to the client about s
     - displayRotation - Abilities of setting display orientations.
     - displayMode - Abilities of setting display modes.
 
-To set abilities on server side you can use `saveAbilities()` method.
+### Setting abilities
 
 ```
-server.updatePlaybackState("PLAY");
-server.abilities.playback.next = "YES";
-server.abilities.playback.prev = "YES";
-server.abilities.playback.rewind = "NO";
-server.abilities.playback.forward = "NO";
+mcServer.updatePlaybackState("PLAY");
+mcServer.abilities.playback.next = "YES";
+mcServer.abilities.playback.prev = "YES";
+mcServer.abilities.playback.rewind = "NO";
+mcServer.abilities.playback.forward = "NO";
 
-server.abilities.playback.saveAbilities();
+mcServer.abilities.playback.saveAbilities();
+
+mcServer.abilities.displayMode.fullScreen = "YES";
+mcServer.abilities.displayRotation.rotation180 = "YES";
 ```
 
-Keep in mind that using `saveAbilities()` is required to save changes of playback abilities into database, otherwise changes will have no effect on the device and clients will not be notified about an update.
+### Checking abilities
+
+Keep in mind that using `saveAbilities()` is required to save changes of playback abilities into database, otherwise changes will have no effect on the device and clients will not be notified about an update. Other abilites are updated instantly - there is no need to manually save these abilities.
 
 To get abilities of the server on the client side:
 
 ```
-info = client.getLatestServerInfo();
-console.log("After save:");
-console.log("ability NEXT: " + info.abilities.playback.next);
-console.log("ability PREV: " + info.abilities.playback.prev);
-console.log("ability REWIND: " + info.abilities.playback.rewind);
-console.log("ability FORWARD: " + info.abilities.playback.forward);
+var mcClient = tizen.mediacontroller.getClient();
+var mcServerInfo = client.getLatestServerInfo();
+
+console.log("ability NEXT: " + mcServerInfo.abilities.playback.next);
+console.log("ability PREV: " + mcServerInfo.abilities.playback.prev);
+console.log("ability REWIND: " + mcServerInfo.abilities.playback.rewind);
+console.log("ability FORWARD: " + mcServerInfo.abilities.playback.forward);
 ```
 
-You can also monitor server's changes of its abilities by using ` addAbilityChangeListener` method on client side.
+### Monitoring abilities
+
+You can also monitor server's changes of its abilities by using `addAbilityChangeListener` method on client side.
 
 ```
 /* Client-side code */
-var client = tizen.mediacontroller.getClient();
+var mcClient = tizen.mediacontroller.getClient();
 
 var listener =
 {
@@ -605,20 +611,21 @@ var listener =
   }
 };
 
-var watchId = client.addAbilityChangeListener(listener);
+var watchId = mcClient.addAbilityChangeListener(listener);
 
 /* Server-side code */
-var server = tizen.mediacontroller.createServer();
-server.abilities.playback.play = "YES";
-server.abilities.playback.saveAbilities();
-server.abilities.shuffle = "NO";
-server.abilities.repeat = "YES";
+var mcServer = tizen.mediacontroller.createServer();
+mcServer.abilities.playback.play = "YES";
+mcServer.abilities.playback.saveAbilities();
+mcServer.abilities.shuffle = "NO";
+mcServer.abilities.repeat = "YES";
 ```
+
 
 You will receive information about ability changes of every active media controller server. To receive information only from selected servers, calling function `subscribe()` is required.
 
 ```
-var client = tizen.mediacontroller.getClient();
+var mcClient = tizen.mediacontroller.getClient();
 var info = client.getLatestServerInfo();
 info.abilities.subscribe();
 ```
@@ -636,7 +643,7 @@ Media controller API provides methods to change and monitor server features:
 - DisplayMode
 - DisplayRotation
 
-From server side you can monitor client requests of its features by using correspondant change request listener.
+From server side you can monitor client's requests of its features by using correspondent change request listener.
 
 ```
 var watcherId = 0;  /* Watcher identifier. */
@@ -653,7 +660,7 @@ watcherId = mcServerInfo.displayRotation.addDisplayRotationChangeListener(functi
 mcServerInfo.displayRotation.removeDisplayRotationChangeListener(watcherId);
 ```
 
-From client side you can send request of changin specific feature to server by using `sendRequest()` method. Request can be only sent after [enabling specific ability](#server-abilities) on server side.
+From client side you can send request of changing specific feature to server by using `sendRequest()` method. Request can be sent only after [enabling specific ability](#server-abilities) on server side.
 
 ```
 var mcClient = tizen.mediacontroller.getClient();
@@ -666,7 +673,7 @@ mcServerInfo.displayRotation.sendRequest(rotation, function(data, code)
 });
 ```
 
-Server can reply to your request by using `RequestReply()` method:
+Server can reply to to clients requests by using `RequestReply` object:
 
 ```
 var watcherId = 0;  /* Watcher identifier. */
