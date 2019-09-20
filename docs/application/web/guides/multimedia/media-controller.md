@@ -55,7 +55,9 @@ The main features of the Media Controller API include:
 
   You can [manage playlists](#managing-playlists-on-client-side) on client side by sending request about the new playback item to the server. You can then add listeners to be invoked when the playlist is updated on the server.
 
-- Setting abilities of the media controller server
+- Managing abilities of the media controller server
+
+  You can [set abilities](#setting-abilities) of media controller server by using [MediaControllerAbilities](../../api/latest/device_api/wearable/tizen/mediacontroller.html#MediaControllerAbilities) interface.
 
   To check which features are supported by the server, you can use [MediaControllerAbilitiesInfo](../../api/latest/device_api/wearable/tizen/mediacontroller.html#MediaControllerAbilitiesInfo) interface, which can be accessed as a member of `MediaControllerServerInfo` object, gathered by  `getLatestServerInfo()` method.
 
@@ -179,16 +181,16 @@ To use the icon URI attribute in your media controller application, follow these
 1. Set the server icon on the server side:
 
     ```
-    var server = tizen.mediacontroller.createServer();
-    server.updateIconURI("icon.png");
+    var mcServer = tizen.mediacontroller.createServer();
+    mcServer.updateIconURI("icon.png");
     ```
 
 2. Get the server icon URI on the client side:
 
     ```
     var mcClient = tizen.mediacontroller.getClient();
-    var server_info = client.getLatestServerInfo();
-    console.log(server_info.iconURI);
+    var mcServerInfo = mcClient.getLatestServerInfo();
+    console.log(mcServerInfo.iconURI);
     ```
 
 ## Receiving Notifications from Server
@@ -304,7 +306,7 @@ To receive and handle search request on the server, follow these steps:
 1. Get server handle:
 
     ```
-    var server = tizen.mediacontroller.createServer();
+    var mcServer = tizen.mediacontroller.createServer();
     ```
 
 2. Define search request callback:
@@ -323,7 +325,7 @@ To receive and handle search request on the server, follow these steps:
 3. Register search request listener:
 
     ```
-    server.setSearchRequestListener(searchRequestCallback);
+    mcServer.setSearchRequestListener(searchRequestCallback);
     ```
 
 ### Sending Search Request
@@ -381,7 +383,7 @@ different types of media items.
 2. Accessing content type on the client side:
 
     ```
-    var type = serverInfo.playbackInfo.contentType;
+    var type = mcServerInfo.playbackInfo.contentType;
     if (type == "VIDEO") {
         console.log("playing video");
     }
@@ -405,7 +407,7 @@ Server can set age rating for current playback. Client can access this rating (r
 
     ```
     var userAge = 17; // App developer should retrieve actual user age from user profile.
-    var rating = serverInfo.playbackInfo.ageRating;
+    var rating = mcServerIfno.playbackInfo.ageRating;
     if (rating > userAge) {
         console.log("Warning: this content has age rating " + rating + "+.";
     }
@@ -552,7 +554,6 @@ Multiple server's abilities can be set to give information to clients about supp
 ### Setting abilities
 
 ```
-mcServer.updatePlaybackState("PLAY");
 mcServer.abilities.playback.next = "YES";
 mcServer.abilities.playback.prev = "YES";
 mcServer.abilities.playback.rewind = "NO";
@@ -572,7 +573,7 @@ To get abilities of the server on the client side:
 
 ```
 var mcClient = tizen.mediacontroller.getClient();
-var mcServerInfo = client.getLatestServerInfo();
+var mcServerInfo = mcClient.getLatestServerInfo();
 
 console.log("ability NEXT: " + mcServerInfo.abilities.playback.next);
 console.log("ability PREV: " + mcServerInfo.abilities.playback.prev);
@@ -626,13 +627,13 @@ You will receive information about ability changes of every active media control
 
 ```
 var mcClient = tizen.mediacontroller.getClient();
-var info = client.getLatestServerInfo();
-info.abilities.subscribe();
+var mcServerInfo = mcClient.getLatestServerInfo();
+mcServerInfo.abilities.subscribe();
 ```
 
 After first use of `subscribe()` you will stop receiving changes from not subscribed servers.
 
-To stop monitoring specific server use analogical `unsubscribe()` method. In case when no server is subscribed, notifications from all servers will be fired.
+To stop monitoring specific server use analogical `unsubscribe()` method. In case when no server is subscribed, notifications from all active servers will be fired.
 
 
 ## Server features
@@ -643,7 +644,7 @@ Media controller API provides methods to change and monitor server features:
 - DisplayMode
 - DisplayRotation
 
-From server side you can monitor client's requests of its features by using correspondent change request listener.
+From server side you can monitor clients' requests of its features by using correspondent change request listener.
 
 ```
 var watcherId = 0;  /* Watcher identifier. */
