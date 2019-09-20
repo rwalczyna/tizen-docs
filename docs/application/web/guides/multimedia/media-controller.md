@@ -61,7 +61,7 @@ The main features of the Media Controller API include:
 
   To check which features are supported by the server, you can use [MediaControllerAbilitiesInfo](../../api/latest/device_api/wearable/tizen/mediacontroller.html#MediaControllerAbilitiesInfo) interface, which can be accessed as a member of `MediaControllerServerInfo` object, gathered by  `getLatestServerInfo()` method.
 
-- Setting features of media controller server
+- Setting features of the media controller server
 
   You can [set features of the media controller server](#server-features) by using server's interfaces.
 
@@ -407,7 +407,7 @@ Server can set age rating for current playback. Client can access this rating (r
 
     ```
     var userAge = 17; // App developer should retrieve actual user age from user profile.
-    var rating = mcServerIfno.playbackInfo.ageRating;
+    var rating = mcServerInfo.playbackInfo.ageRating;
     if (rating > userAge) {
         console.log("Warning: this content has age rating " + rating + "+.";
     }
