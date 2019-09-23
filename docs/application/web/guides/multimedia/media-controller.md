@@ -59,7 +59,7 @@ The main features of the Media Controller API include:
 
   You can [set abilities](#setting-abilities) of media controller server by using [MediaControllerAbilities](../../api/latest/device_api/wearable/tizen/mediacontroller.html#MediaControllerAbilities) interface.
 
-  To check which features are supported by the server, you can use [MediaControllerAbilitiesInfo](../../api/latest/device_api/wearable/tizen/mediacontroller.html#MediaControllerAbilitiesInfo) interface, which can be accessed as a member of `MediaControllerServerInfo` object, gathered by  `getLatestServerInfo()` method.
+  To check which features are supported by the server, you can use [MediaControllerAbilitiesInfo](../../api/latest/device_api/wearable/tizen/mediacontroller.html#MediaControllerAbilitiesInfo) interface, which can be accessed as a member of `MediaControllerServerInfo` object, gathered by `getLatestServerInfo()` method.
 
 - Setting features of the media controller server
 
@@ -567,7 +567,7 @@ mcServer.abilities.displayRotation.rotation180 = "YES";
 
 ### Checking abilities
 
-Keep in mind that using `saveAbilities()` is required to save changes of playback abilities into database, otherwise changes will have no effect on the device and clients will not be notified about an update. Other abilites are updated instantly - there is no need to manually save these abilities.
+Keep in mind that using `saveAbilities()` is required to save changes of playback abilities into database, otherwise changes will have no effect on the device and clients will not be notified about an update. Other abilities are updated instantly - there is no need to manually save these abilities.
 
 To get abilities of the server on the client side:
 
